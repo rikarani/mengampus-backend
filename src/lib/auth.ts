@@ -2,9 +2,30 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/prisma/prisma";
 import { expo } from "@better-auth/expo";
+import { admin } from "better-auth/plugins";
 
 export const auth = betterAuth({
-  plugins: [expo()],
+  plugins: [
+    expo(),
+    admin({
+      defaultRole: "user",
+      schema: {
+        user: {
+          modelName: "User",
+          fields: {
+            banReason: "ban_reason",
+            banExpiresAt: "ban_expires",
+          },
+        },
+        session: {
+          modelName: "Session",
+          fields: {
+            impersonatedBy: "impersonated_by",
+          },
+        },
+      },
+    }),
+  ],
   database: prismaAdapter(prisma, {
     provider: "mysql",
   }),
@@ -12,12 +33,29 @@ export const auth = betterAuth({
     enabled: true,
   },
   trustedOrigins: ["mengampus://*/*", "exp://*/*"],
+  advanced: {
+    database: {
+      generateId: "uuid",
+    },
+  },
+
   user: {
     modelName: "User",
     fields: {
       emailVerified: "email_verified",
       createdAt: "created_at",
       updatedAt: "updated_at",
+    },
+    additionalFields: {
+      nim: {
+        type: "string",
+        unique: true,
+        required: true,
+      },
+      prodi: {
+        type: "string",
+        required: true,
+      },
     },
   },
   session: {
