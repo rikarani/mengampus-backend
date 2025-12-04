@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "@/prisma/prisma";
 import { expo } from "@better-auth/expo";
+import { prisma } from "@/prisma/prisma";
 import { admin } from "better-auth/plugins";
 
 export const auth = betterAuth({
@@ -33,12 +33,6 @@ export const auth = betterAuth({
     enabled: true,
   },
   trustedOrigins: ["mengampus://*/*", "exp://*/*"],
-  advanced: {
-    database: {
-      generateId: "uuid",
-    },
-  },
-
   user: {
     modelName: "User",
     fields: {
