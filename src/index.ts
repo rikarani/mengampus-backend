@@ -1,9 +1,7 @@
 import "dotenv/config";
-import express from "express";
-import { toNodeHandler } from "better-auth/node";
-import { auth } from "./lib/auth";
+
 import cors from "cors";
-import bcrypt from "bcrypt";
+import express from "express";
 
 import { prisma } from "@/prisma/prisma";
 
@@ -11,9 +9,6 @@ const app = express();
 const port = 4000;
 
 app.use(cors());
-
-app.all("/api/auth/*splat", toNodeHandler(auth));
-
 app.use(express.json());
 
 app.get("/", (request, response) => {
@@ -38,16 +33,14 @@ app.post("/events", async (request, response) => {
       },
       {
         title: "Seminar AI dan Machine Learning",
-        description:
-          "Mengenal perkembangan terbaru dalam AI dan Machine Learning",
+        description: "Mengenal perkembangan terbaru dalam AI dan Machine Learning",
         date: new Date("2024-08-20"),
         location: "Bandung",
         category: "Seminar",
       },
       {
         title: "Hackathon 2024",
-        description:
-          "Kompetisi coding selama 48 jam dengan berbagai tantangan menarik",
+        description: "Kompetisi coding selama 48 jam dengan berbagai tantangan menarik",
         date: new Date("2024-09-10"),
         location: "Surabaya",
         category: "Hackathon",
@@ -70,9 +63,7 @@ app.post("/events", async (request, response) => {
   });
 
   if (!data) {
-    return response
-      .json({ message: "Gagal menambahkan data event" })
-      .status(500);
+    return response.json({ message: "Gagal menambahkan data event" }).status(500);
   }
 
   return response.json({ message: "Berhasil menambahkan data event" });
