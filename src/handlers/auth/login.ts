@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-import { z } from "zod";
+import { email, z } from "zod";
 import { prisma } from "@/prisma/prisma";
 import { loginSchema } from "@/schemas/auth/login";
 
@@ -12,7 +12,7 @@ export async function login(request: Request, response: Response) {
     const { nim, password, role } = loginSchema.parse(request.body);
 
     const user = await prisma.user.findUnique({
-      where: { nim, AND: [{ role }] },
+      where: { nim },
     });
 
     if (!user) {
@@ -44,6 +44,15 @@ export async function login(request: Request, response: Response) {
       data: {
         message: "Login berhasil",
         token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          nim: user.nim,
+          prodi: user.prodi,
+          role: user.role,
+          image: user.image,
+        },
       },
     });
   } catch (error) {
