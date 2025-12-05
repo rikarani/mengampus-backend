@@ -12,7 +12,7 @@ export async function register(request: Request, response: Response) {
 
     const existingUser = await prisma.user.findUnique({
       where: {
-        OR: [{ email: data.email }, { nim: data.nim }],
+        nim: data.nim,
       },
     });
 
