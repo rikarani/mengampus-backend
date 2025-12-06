@@ -1,11 +1,32 @@
 import { betterAuth } from "better-auth";
 import { expo } from "@better-auth/expo";
+import { username, admin as adminPlugin } from "better-auth/plugins";
 
-import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/prisma/prisma";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+
+import { accessControl, admin, user } from "./permission";
 
 export const auth = betterAuth({
-  plugins: [expo()],
+  plugins: [
+    expo(),
+    username({
+      schema: {
+        user: {
+          modelName: "User",
+          fields: {
+            username: "nim",
+            displayUsername: "nim",
+          },
+        },
+      },
+    }),
+    adminPlugin({
+      ac: accessControl,
+      roles: { admin, user },
+      defaultRole: "user",
+    }),
+  ],
   database: prismaAdapter(prisma, {
     provider: "mysql",
   }),
