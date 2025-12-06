@@ -1,14 +1,18 @@
 model User {
-  id         String   @id @default(uuid())
-  name       String
-  email      String   @unique
-  nim        String   @unique
-  prodi      String
-  image      String?
-  role       String   @default("user")
-  password   String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id             String   @id @default(uuid())
+  name           String   @db.Text
+  email          String
+  email_verified Boolean  @default(false)
+  nim            String
+  prodi          String   @db.Text
+  role           String   @default("user")
+  image          String?  @db.Text
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
+  sessions Session[]
+  accounts Account[]
+
+  @@unique([email, nim])
   @@map("users")
 }
