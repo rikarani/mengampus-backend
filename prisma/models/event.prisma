@@ -1,14 +1,15 @@
 model Event {
-    id          String   @id @default(uuid())
-    category_id String
-    name        String
-    date        DateTime
-    description String
-    location    String
-    created_at  DateTime @default(now())
-    updated_at  DateTime @updatedAt
+  id          String   @id @default(uuid())
+  category_id String
+  name        String
+  date        String
+  time        String
+  description String
+  location    String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
-    category Category @relation(fields: [category_id], references: [id])
+  category Category @relation(fields: [category_id], references: [id])
 
-    @@map("events")
+  @@map("events")
 }
