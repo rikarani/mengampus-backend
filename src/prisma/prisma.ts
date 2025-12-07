@@ -1,6 +1,7 @@
 import "dotenv/config";
+
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import { PrismaClient } from "../../prisma/generated/client";
+import { Prisma, PrismaClient } from "../../prisma/generated/client";
 
 const adapter = new PrismaMariaDb({
   host: process.env.DB_HOST!,
@@ -11,4 +12,6 @@ const adapter = new PrismaMariaDb({
   connectionLimit: 5,
 });
 
-export const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({ adapter });
+
+export { Prisma, prisma };
