@@ -1,11 +1,10 @@
+import type { API } from "@/types";
 import type { Request, Response } from "express";
+import type { Event, Category } from "../../../prisma/generated/client";
 
 import { prisma } from "@/prisma/prisma";
-import type { EventModel, CategoryModel } from "../../../prisma/generated/models";
 
-import type { API } from "@/types";
-
-export async function index(request: Request, response: Response<API<(EventModel & { category: CategoryModel })[]>>) {
+export async function index(_: Request, response: Response<API<Array<Event & { category: Category }>>>) {
   const events = await prisma.event.findMany({
     include: {
       category: true,
@@ -14,6 +13,7 @@ export async function index(request: Request, response: Response<API<(EventModel
 
   return response.status(200).json({
     success: true,
+    message: "Berhasil Mengambil Data Event",
     data: events,
   });
 }
