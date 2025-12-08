@@ -1,49 +1,47 @@
-import type { Request, Response } from "express";
 import slugify from "slugify";
 
-import { prisma } from "@/prisma/prisma";
-
 import type { API } from "@/types";
+import type { Request, Response } from "express";
+import type { Category } from "../../../prisma/generated/client";
 
-export async function create(request: Request, response: Response<API>) {
-  const categories = await prisma.category.createMany({
-    data: [
-      {
-        name: "Seminar",
-        slug: slugify("Seminar", { lower: true }),
-      },
-      {
-        name: "Workshop",
-        slug: slugify("Workshop", { lower: true }),
-      },
-      {
-        name: "Kunjungan Orang Penting",
-        slug: slugify("Kunjungan Orang Penting", { lower: true }),
-      },
-      {
-        name: "Siraman Rohani",
-        slug: slugify("Siraman Rohani", { lower: true }),
-      },
-      {
-        name: "Expo dan Festival",
-        slug: slugify("Expo dan Festival", { lower: true }),
-      },
-    ],
-  });
+import { z } from "zod";
 
-  if (!categories) {
-    return response.status(500).json({
-      success: false,
+import { Prisma, prisma } from "@/prisma/prisma";
+import { categorySchema } from "@/schemas/category";
+
+export async function create(request: Request, response: Response<API<Category>>) {
+  try {
+    const { name } = categorySchema.parse(request.body);
+
+    const category = await prisma.category.create({
       data: {
-        message: "Gagal membuat kategori",
+        name,
+        slug: slugify(name, { lower: true, strict: true }),
       },
     });
-  }
 
-  return response.status(201).json({
-    success: true,
-    data: {
-      message: "Kategori berhasil dibuat",
-    },
-  });
+    return response.status(201).json({
+      success: true,
+      message: "Berhasil Menambahkan Kategori",
+      data: category,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return response.status(400).json({
+        success: false,
+        message: "Validasi Gagal",
+        errors: z.flattenError(error).fieldErrors,
+      });
+    }
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        return response.status(409).json({
+          success: false,
+          message: "Kategori sudah ada",
+          errorCode: error.code,
+        });
+      }
+    }
+  }
 }
