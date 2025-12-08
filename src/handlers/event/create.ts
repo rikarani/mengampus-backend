@@ -1,34 +1,50 @@
+import type { API } from "@/types";
 import type { Request, Response } from "express";
-
-import { prisma } from "@/prisma/prisma";
+import type { Event } from "../../../prisma/generated/client";
 
 import { z } from "zod";
-import { addEventSchema } from "@/schemas/event/add";
 
-import type { API } from "@/types";
+import { eventSchema } from "@/schemas/event";
+import { Prisma, prisma } from "@/prisma/prisma";
 
-export async function create(request: Request, response: Response<API>) {
+export async function create(request: Request, response: Response<API<Event>>) {
   try {
-    const forms = addEventSchema.parse(request.body);
+    const forms = eventSchema.parse(request.body);
 
-    await prisma.event.create({
+    const event = await prisma.event.create({
       data: forms,
     });
 
     return response.status(201).json({
       success: true,
-      data: {
-        message: "Berhasil Menambahkan Event",
-      },
+      message: "Berhasil Menambahkan Event",
+      data: event,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return response.status(400).json({
         success: false,
-        data: {
-          message: z.prettifyError(error),
-        },
+        message: "Validasi Gagal",
+        errors: z.flattenError(error).fieldErrors,
       });
+    }
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2003") {
+        return response.status(409).json({
+          success: false,
+          message: "Kategori tidak ditemukan",
+          errorCode: error.code,
+        });
+      }
+
+      if (error.code === "P2002") {
+        return response.status(409).json({
+          success: false,
+          message: "Event dengan nama yang sama sudah ada",
+          errorCode: error.code,
+        });
+      }
     }
   }
 }
