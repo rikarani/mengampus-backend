@@ -1,10 +1,32 @@
 import type { API } from "@/types";
 import type { Request, Response } from "express";
 
+import { auth } from "@/lib/auth";
 import { Prisma, prisma } from "@/prisma/prisma";
 
-export async function deleteEvent(request: Request<{ id: string }>, response: Response<API>) {
+type Params = {
+  id: string;
+};
+
+export async function deleteEvent(request: Request<Params>, response: Response<API>) {
   const { id } = request.params;
+
+  const hasPermission = await auth.api.userHasPermission({
+    body: {
+      userId: request.session!.user.id,
+      permission: {
+        event: ["delete"],
+      },
+    },
+  });
+
+  if (!hasPermission.success) {
+    return response.status(403).json({
+      success: false,
+      message: "Anda tidak memiliki izin untuk menghapus event",
+      errorCode: "403",
+    });
+  }
 
   try {
     await prisma.event.delete({
