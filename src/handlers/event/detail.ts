@@ -1,16 +1,14 @@
-import type { Request, Response } from "express";
-
-import type { EventModel } from "../../../prisma/generated/models";
-import { Prisma, prisma } from "@/prisma/prisma";
-import { z } from "zod";
-
 import type { API } from "@/types";
+import type { Request, Response } from "express";
+import type { Event } from "../../../prisma/generated/client";
+
+import { Prisma, prisma } from "@/prisma/prisma";
 
 type Params = {
   id: string;
 };
 
-export async function detail(request: Request<Params>, response: Response<API<EventModel>>) {
+export async function detail(request: Request<Params>, response: Response<API<Event>>) {
   const { id } = request.params;
 
   try {
@@ -20,6 +18,7 @@ export async function detail(request: Request<Params>, response: Response<API<Ev
 
     return response.json({
       success: true,
+      message: "Berhasil Mendapatkan Detail Event",
       data: event,
     });
   } catch (error) {
@@ -28,6 +27,7 @@ export async function detail(request: Request<Params>, response: Response<API<Ev
         return response.status(404).json({
           success: false,
           message: "Event Tidak Ditemukan",
+          errorCode: "404",
         });
       }
     }
