@@ -4,10 +4,28 @@ import type { Event } from "../../../prisma/generated/client";
 
 import { z } from "zod";
 
+import { auth } from "@/lib/auth";
 import { eventSchema } from "@/schemas/event";
 import { Prisma, prisma } from "@/prisma/prisma";
 
 export async function create(request: Request, response: Response<API<Event>>) {
+  const hasPermission = await auth.api.userHasPermission({
+    body: {
+      userId: request.session!.user.id,
+      permission: {
+        event: ["create"],
+      },
+    },
+  });
+
+  if (!hasPermission.success) {
+    return response.status(403).json({
+      success: false,
+      message: "Anda tidak memiliki izin untuk menambahkan event",
+      errorCode: "403",
+    });
+  }
+
   try {
     const forms = eventSchema.parse(request.body);
 
