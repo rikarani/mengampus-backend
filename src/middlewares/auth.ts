@@ -11,10 +11,12 @@ export async function authMiddleware(request: Request, response: Response, next:
   if (!session) {
     return response.status(401).json({
       success: false,
-      message: "Unauthorized",
+      message: "Login Terlebih Dahulu",
       errorCode: "401",
     });
   }
+
+  request.session = session;
 
   return next();
 }
