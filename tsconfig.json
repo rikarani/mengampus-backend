@@ -47,6 +47,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "express-extend.d.ts"],
   "exclude": ["node_modules"]
 }
